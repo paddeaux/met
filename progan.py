@@ -30,9 +30,9 @@ START_TRAIN_IMG_SIZE = 4
 DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/train/")
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 
-os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = "checkpoints/generator_sen12_full.pth"
-CHECKPOINT_CRITIC = "checkpoints/critic_sen12_full.pth"
+#os.makedirs("checkpoints", exist_ok = True)
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/generator_sen12_full.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full.pth")
 SAVE_MODEL = True
 LOAD_MODEL = False
 
