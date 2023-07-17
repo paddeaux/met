@@ -52,7 +52,7 @@ class ConvBlock(nn.Module):
         return x
     
 class Generator(nn.Module):
-    def __init__(self, z_dim, in_channels, img_channels=3):
+    def __init__(self, z_dim, in_channels, img_channels=13): #img_channels=3
         super(Generator, self).__init__()
         # starting structure of Generator should be opposite of ending structure of Discriminator
         # initial takes 1x1 -> 4x4
@@ -106,7 +106,7 @@ class Generator(nn.Module):
         return self.fade_in(alpha, final_upscaled, final_out)
     
 class Discriminator(nn.Module):
-    def __init__(self, in_channels, img_channels=3):
+    def __init__(self, in_channels, img_channels=13): #img_channels=3
         super(Discriminator, self).__init__()
         self.prog_blocks, self.rgb_layers = nn.ModuleList([]), nn.ModuleList([])
         self.leaky = nn.LeakyReLU(0.2)

@@ -7,6 +7,7 @@ The use of a ProGAN for synthetic satellite imagery is also described by Abady e
 A means of expanding on this original work is to bring seasonality into the network - allowing the generation of synthetic images representative of seasonality.
 
 ### Running the tool
-Command line arguments will be added in due course, but for now to run the training simply run:
-`python progan.py`
+* Training a new model or loading the last checkpoints is done using the `--mode/-m` flag:
+ `python progan.py --mode train` or `python progan.py -m load`
+ 
 
