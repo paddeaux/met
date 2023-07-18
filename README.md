@@ -4,10 +4,17 @@
 The architecture described here originally comes from this paper: **https://arxiv.org/pdf/1710.10196.pdf**, while the PyTorch implementation of a similar ProGAN archictecture comes from here: **https://www.kaggle.com/code/paddeaux/pggan-progressive-growing-gan-pggan-pytorch/edit**
 The use of a ProGAN for synthetic satellite imagery is also described by Abady et. al (https://www.researchgate.net/publication/346821973_GAN_generation_of_synthetic_multispectral_satellite_images), and the initial aim of this work is to reproduce this GAN, in this case using PyTorch in favour of TensorFlow.
 
-A means of expanding on this original work is to bring seasonality into the network - allowing the generation of synthetic images representative of seasonality.
+A means of expanding on this original work is to bring seasonality into the network - allowing the generation of synthetic images representative of seasonality
+
+### Datasets & Checkpoints
+Datasets and model checkpoints should be located in the parent folder of `met`, as **"Input"** and **"checkpoints"** respectively.
+
+The SEN12MS dataset is available here: **https://mediatum.ub.tum.de/1474000**
 
 ### Running the tool
 * Training a new model or loading the last checkpoints is done using the `--mode/-m` flag:
  `python progan.py --mode train` or `python progan.py -m load`
+* Example plots (either in RGB or full band) can be produced from the trained/loaded model with the `--plot/-p` flag:
+`python progan.py -m load -p rgb` or `python progan.py -m load -p full` 
  
 
