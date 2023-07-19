@@ -10,8 +10,8 @@ A means of expanding on this original work is to bring seasonality into the netw
 Datasets and model checkpoints should be located in the parent folder of `met`, as **"Input"** and **"checkpoints"** respectively.
 
 * The SEN12MS dataset is available here: **https://mediatum.ub.tum.de/1474000**
-* Generator checkpoint trained on the Spring portion of the SEN12MS dataset (partially trained): **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/ERhn7hIiokdJkp0mJ_hgvEMByG-4SrzeFcvE5ZKSjwfEgg?e=yFWuef**
-* Critic checkpoint for the above: **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/EVzkXxTOevFPh9-73e8LCDoBHwBfbA7pFe6QF5rCVg88tg?e=sG9Ipy**
+* Generator checkpoint trained on the Spring portion of the SEN12MS dataset (partially trained): **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/ERhn7hIiokdJkp0mJ_hgvEMByG-4SrzeFcvE5ZKSjwfEgg?e=yFWuef&download=1**
+* Critic checkpoint for the above: **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/EVzkXxTOevFPh9-73e8LCDoBHwBfbA7pFe6QF5rCVg88tg?e=sG9Ipy&download=1**
 
 
 ### Running the tool
