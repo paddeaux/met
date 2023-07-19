@@ -106,7 +106,7 @@ def plot_sample(gen,device,z_dim=256,steps=6,n=6):
         gen.eval()
         with torch.no_grad():
             noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=1,steps=steps)
+            generated_img = gen(noise,alpha=1,steps=steps,label=0)
             img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
             ax.imshow(img[:, :, 1:4])
             ax.set_title(f'Image #{i}')

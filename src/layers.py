@@ -56,6 +56,10 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         # starting structure of Generator should be opposite of ending structure of Discriminator
         # initial takes 1x1 -> 4x4
+
+        # trying to add in labels for conditional GAN functionality
+        self.label_emb = nn.Embedding(4, 4)
+
         self.initial = nn.Sequential(
             PixelNorm(),
             nn.ConvTranspose2d(z_dim, in_channels, 4, 1, 0),
@@ -169,6 +173,7 @@ class Discriminator(nn.Module):
 
         # convert from rgb as initial step, this will depend on
         # the image size (each will have it's on rgb layer)
+
         out = self.leaky(self.rgb_layers[cur_step](x))
 
         if steps == 0:  # i.e, image is 4x4

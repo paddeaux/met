@@ -15,6 +15,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torch.autograd import Variable
 
 # ProGAN libraries
 from src.layers import *
@@ -31,8 +32,8 @@ DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/trai
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/generator_sen12_full.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full.pth")
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_overfit_cond.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_overfit_cond.pth")
 SAVE_MODEL = True
 LOAD_MODEL = False
 
@@ -45,7 +46,7 @@ IN_CHANNELS = 256 ## 512 for paper
 LAMBDA_GP = 10
 NUM_STEPS = int(log2(IMAGE_SIZE/4)) + 1
 
-PROGRESSIVE_EPOCHS = [4, 4, 4, 4, 4, 4, 8] #[4] * len(BATCH_SIZES)
+PROGRESSIVE_EPOCHS = [1] * len(BATCH_SIZES)
 FIXED_NOISE = torch.randn(8,Z_DIM,1,1).to(DEVICE)
 # NUM_WORKERS = 4
 NUM_WORKERS = 2
@@ -71,10 +72,10 @@ def get_loader(img_size):
     batch_size = BATCH_SIZES[int(log2(img_size/4))]
     # SEN12MS Dataset
     #dataset = SEN12MS_RGB(targ_dir=DATASET, transform=transform_sen)
-    dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
+    #dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
     
     # Overfit of a single SEN12MS Image
-    #dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
+    dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
 
     # Loading from original CelebA dataset
     #dataset = datasets.ImageFolder(root=DATASET,transform=transform)

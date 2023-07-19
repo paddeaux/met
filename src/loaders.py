@@ -90,6 +90,7 @@ class SEN12MS_FULL(Dataset):
         self.paths = list(pathlib.Path(targ_dir).glob("*/*.tif")) # note: you'd have to update this if you've got .png's or .jpeg's
         # Setup transforms
         self.transform = transform
+        self.label = "Spring"
         # Create classes and class_to_idx attributes
         self.classes, self.class_to_idx = find_classes(targ_dir)
 
@@ -151,7 +152,7 @@ class overfit_sen12(Dataset):
         image = rasterio.open(str(self.image_path)).read()
         image_norm = cv2.normalize(image.astype(np.float32), dst=None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
         image = np.transpose(image_norm,(1,2,0))
-        label = "sat"
+        label = 0
         if self.transform is not None:
             image = self.transform(image)
 
