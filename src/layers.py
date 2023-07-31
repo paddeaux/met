@@ -58,7 +58,7 @@ class Generator(nn.Module):
         # initial takes 1x1 -> 4x4
 
         # trying to add in labels for conditional GAN functionality
-        self.label_emb = nn.Embedding(4, 4)
+        #self.label_emb = nn.Embedding(4, 4)
 
         self.initial = nn.Sequential(
             PixelNorm(),

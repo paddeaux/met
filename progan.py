@@ -22,6 +22,9 @@ from src.layers import *
 from src.loaders import SEN12MS_RGB, SEN12MS_FULL, overfit, overfit_sen12
 from src.utils import *
 
+# SEN12MS dataloader
+from src.sen12ms_dataLoader import *
+
 torch.backends.cudnn.benchmarks = True
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -32,9 +35,9 @@ DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/trai
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_overfit_cond.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_overfit_cond.pth")
-SAVE_MODEL = True
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/generator_sen12_full_overfit.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_overfit.pth")
+SAVE_MODEL = False
 LOAD_MODEL = False
 
 LR = 1e-3

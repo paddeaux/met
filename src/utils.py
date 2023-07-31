@@ -98,7 +98,22 @@ def generate_examples_tif(gen,current_epoch,steps,z_dim,device,n=16):
                 new_file.write(img_np, [x for x in range(1,14)])    
     gen.train()
 
-def plot_sample(gen,device,z_dim=256,steps=6,n=6):
+def save_tif(input_img, filename):
+    input_img = input_img.cpu().detach()[0]
+    with rasterio.open(
+                os.path.join(f"generated_images/{filename}.tif"), 
+                mode="w",
+                driver="GTiff",
+                count=input_img.shape[0],
+                height=input_img.shape[1], 
+                width=input_img.shape[2],
+                crs='EPSG:32737',
+                dtype=rasterio.uint16,
+                transform=rasterio.Affine(1, 0, 0, 0, 1, 0)
+            ) as new_file:
+                new_file.write(input_img, [x for x in range(1,14)]) 
+
+def plot_sample(gen,device,z_dim=256,steps=6,n=2):
     fig, axs = plt.subplots(1, n, figsize=(15,4))
     fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
     plt.axis('off')
@@ -106,7 +121,9 @@ def plot_sample(gen,device,z_dim=256,steps=6,n=6):
         gen.eval()
         with torch.no_grad():
             noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=1,steps=steps,label=0)
+            generated_img = gen(noise,alpha=1,steps=steps)
+            print("Saving tif...")
+            save_tif(generated_img, "tif_example")
             img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
             ax.imshow(img[:, :, 1:4])
             ax.set_title(f'Image #{i}')
