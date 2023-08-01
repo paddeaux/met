@@ -21,7 +21,7 @@ from torch.autograd import Variable
 
 # ProGAN libraries
 from src.layers import *
-from src.loaders import SEN12MS_RGB_C, SEN12MS_FULL, overfit, overfit_sen12
+from src.loaders import SEN12MS_RGB, SEN12MS_FULL, overfit, overfit_sen12
 from src.utils import *
 
 # SEN12MS dataloader
@@ -95,20 +95,21 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
     loop = tqdm(loader,leave=True)
     
     i = 0
-    for batch_idx,(real,label) in enumerate(loop):
+    for batch_idx,(real,labels) in enumerate(loop):
         i += 1
         if i%2 == 0:
             continue
         real = real.to(DEVICE)
         cur_batch_size = real.shape[0]
         noise = torch.randn(cur_batch_size,Z_DIM,1,1).to(DEVICE)
-        
+
+        fake_labels = torch.randint(0, 4, (cur_batch_size,)).to(DEVICE)
         ## Train Critic
         ## Wasserstein Loss : Maximize "E[Critic(real)] - E[Critic(fake)]"   ==   Minimize "-(E[Critic(real)] - E[Critic(fake)])"
         with torch.cuda.amp.autocast():
-            fake = gen(noise,alpha,step).to(DEVICE)
-            critic_real = critic(real,alpha,step)
-            critic_fake = critic(fake.detach(),alpha,step)
+            fake = gen(noise,alpha,step,fake_labels).to(DEVICE)
+            critic_real = critic(real,alpha,step,labels)
+            critic_fake = critic(fake.detach(),alpha,step,fake_labels)
             gp = gradient_penalty(critic,real,fake,alpha,step,device=DEVICE)
             loss_critic = -1 * (torch.mean(critic_real) - torch.mean(critic_fake)) + LAMBDA_GP * gp + 0.001 * torch.mean(critic_real**2)
         
@@ -120,7 +121,7 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
         ## Train Generator
         ## Maximize "E[Critic(fake)]"   ==   Minimize "- E[Critic(fake)]"
         with torch.cuda.amp.autocast():
-            gen_fake = critic(fake,alpha,step)
+            gen_fake = critic(fake,alpha,step, fake_labels)
             loss_gen = -1 * torch.mean(gen_fake)
             
         gen.zero_grad()

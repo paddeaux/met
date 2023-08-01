@@ -111,12 +111,12 @@ class Generator(nn.Module):
 
 class Generator_C(nn.Module):
     def __init__(self, z_dim, in_channels, img_channels=13): #img_channels=3
-        super(Generator, self).__init__()
+        super(Generator_C, self).__init__()
         # starting structure of Generator should be opposite of ending structure of Discriminator
         # initial takes 1x1 -> 4x4
 
         # trying to add in labels for conditional GAN functionality
-        self.label_emb = nn.Embedding(4, 4)
+        self.label_emb = nn.Embedding(1, 4)
 
         self.initial = nn.Sequential(
             PixelNorm(),
@@ -258,11 +258,11 @@ class Discriminator(nn.Module):
 
 class Discriminator_C(nn.Module):
     def __init__(self, in_channels, img_channels=13): #img_channels=3
-        super(Discriminator, self).__init__()
+        super(Discriminator_C, self).__init__()
         self.prog_blocks, self.rgb_layers = nn.ModuleList([]), nn.ModuleList([])
         self.leaky = nn.LeakyReLU(0.2)
 	
-        self.label_emb = nn.Embedding(4,4)
+        self.label_emb = nn.Embedding(1,4)
 
         # here we work back ways from factors because the discriminator
         # should be mirrored from the generator. So the first prog_block and
