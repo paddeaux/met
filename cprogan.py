@@ -59,12 +59,13 @@ NUM_WORKERS = 2
 GENERATE_EXAMPLES_AT = [1,4,8,12,16,20,24,28,32]#[1,50,100,150,200,250,300,350,400,450,500]##[1000,2000,3000,4000,5000,6000,7000,8000]
 
 def get_loader(img_size):
-	transform = transforms.Compose([
+    transform = transforms.Compose([
         transforms.Resize((img_size,img_size)),
         transforms.ToTensor(),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.Normalize([0.5 for _ in range(IMG_CHANNELS)],[0.5 for _ in range(IMG_CHANNELS)])
     ])
+        
     transform_sen = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((img_size,img_size),antialias=False),

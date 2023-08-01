@@ -150,9 +150,9 @@ class Generator_C(nn.Module):
         return torch.tanh(alpha * generated + (1 - alpha) * upscaled)
 
     def forward(self, x, alpha, steps, labels): ## steps=0 : 4x4 output / steps=1 : 8x8 output / steps=2 : 16x16 output ...
-		c = self.label_emb(labels)        
-    	x = torch.cat([x, c], 1)
-		out = self.initial(x)
+        c = self.label_emb(labels)        
+        x = torch.cat([x, c], 1)
+        out = self.initial(x)
 	
         if steps == 0:
             return self.initial_rgb(out)
@@ -262,7 +262,7 @@ class Discriminator_C(nn.Module):
         self.prog_blocks, self.rgb_layers = nn.ModuleList([]), nn.ModuleList([])
         self.leaky = nn.LeakyReLU(0.2)
 	
-	self.label_emb = nn.Embedding(4,4)
+        self.label_emb = nn.Embedding(4,4)
 
         # here we work back ways from factors because the discriminator
         # should be mirrored from the generator. So the first prog_block and
@@ -320,7 +320,7 @@ class Discriminator_C(nn.Module):
         # use the final block
 
 	# adding in the label and concating to the x input
-	c = self.label_emb(labels)
+        c = self.label_emb(labels)
         x = torch.cat([x, c], 1)
 
         cur_step = len(self.prog_blocks) - steps
