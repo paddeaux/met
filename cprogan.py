@@ -1,5 +1,7 @@
 # The original ProGAN archictecutre comes from here: https://www.kaggle.com/code/paddeaux/pggan-progressive-growing-gan-pggan-pytorch/edit
 
+# The Conditional GAN archictecture I am attempting to adapt is from here: https://www.kaggle.com/code/arturlacerda/pytorch-conditional-gan
+
 # Base packages
 import numpy as np
 from math import log2
@@ -19,7 +21,7 @@ from torch.autograd import Variable
 
 # ProGAN libraries
 from src.layers import *
-from src.loaders import SEN12MS_RGB, SEN12MS_FULL, overfit, overfit_sen12
+from src.loaders import SEN12MS_RGB_C, SEN12MS_FULL, overfit, overfit_sen12
 from src.utils import *
 
 # SEN12MS dataloader
@@ -33,11 +35,12 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 START_TRAIN_IMG_SIZE = 4
 DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/train/")
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
+OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/generator_sen12_full_overfit.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_overfit.pth")
-SAVE_MODEL = False
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_overfit_c.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/crit_sen12_overfit_c.pth")
+SAVE_MODEL = True
 LOAD_MODEL = False
 
 LR = 1e-3
@@ -56,16 +59,13 @@ NUM_WORKERS = 2
 GENERATE_EXAMPLES_AT = [1,4,8,12,16,20,24,28,32]#[1,50,100,150,200,250,300,350,400,450,500]##[1000,2000,3000,4000,5000,6000,7000,8000]
 
 def get_loader(img_size):
-    transform = transforms.Compose(
-    [
+	transform = transforms.Compose([
         transforms.Resize((img_size,img_size)),
         transforms.ToTensor(),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.Normalize([0.5 for _ in range(IMG_CHANNELS)],[0.5 for _ in range(IMG_CHANNELS)])
     ])
-
-    transform_sen = transforms.Compose(
-    [
+    transform_sen = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((img_size,img_size),antialias=False),
         transforms.RandomHorizontalFlip(p=0.5),
@@ -94,7 +94,7 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
     loop = tqdm(loader,leave=True)
     
     i = 0
-    for batch_idx,(real,_) in enumerate(loop):
+    for batch_idx,(real,label) in enumerate(loop):
         i += 1
         if i%2 == 0:
             continue
@@ -140,8 +140,8 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
 
 def train_model():      
     ## build model
-    gen = Generator(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
-    critic = Discriminator(IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
+    gen = Generator_C(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
+    critic = Discriminator_C(IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
 
     ## initialize optimizer,scalers (for FP16 training)
     opt_gen = optim.Adam(gen.parameters(),lr=LR,betas=(0.0,0.99))

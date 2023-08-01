@@ -78,7 +78,7 @@ class SEN12MS_RGB(Dataset):
             return self.transform(img), class_idx # return data, label (X, y)
         else:
             return img, class_idx # return data, label (X, y)
-        
+
 class SEN12MS_FULL(Dataset):
     """Custom dataset for SEN12MS data"""
 
