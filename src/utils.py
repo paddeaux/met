@@ -103,7 +103,7 @@ def save_tif(input_img, filename):
     with rasterio.open(
                 os.path.join(f"generated_images/{filename}.tif"), 
                 mode="w",
-                driver="Tiff",
+                driver="GTiff",
                 count=input_img.shape[0],
                 height=input_img.shape[1], 
                 width=input_img.shape[2],
@@ -121,7 +121,7 @@ def plot_sample(gen,device,z_dim=256,steps=6,n=2):
         gen.eval()
         with torch.no_grad():
             noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=1,steps=steps, 0)
+            generated_img = gen(noise,alpha=1,steps=steps)
             print("Saving tif...")
             save_tif(generated_img, "tif_example")
             img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
