@@ -15,7 +15,7 @@ Datasets and model checkpoints should be located in the parent folder of `met`, 
    * Critic checkpoint for the above: **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/EVzkXxTOevFPh9-73e8LCDoBHwBfbA7pFe6QF5rCVg88tg?e=sG9Ipy&download=1**
 * Checkpoints for an overfitted train:
    * Generator: **https://maynoothuniversity-my.sharepoint.com/:u:/r/personal/patrick_gorry_2015_mumail_ie/Documents/CRT/Met%20%C3%89ireann/met_resources/checkpoints/generator_sen12_full_overfit.pth?csf=1&web=1&e=gCfxlJ&download=1**
-   * Critic: **https://maynoothuniversity-my.sharepoint.com/:u:/r/personal/patrick_gorry_2015_mumail_ie/Documents/CRT/Met%20%C3%89ireann/met_resources/checkpoints/generator_sen12_full_overfit.pth?csf=1&web=1&e=gCfxlJ&download=1**
+   * Critic: **https://maynoothuniversity-my.sharepoint.com/:u:/g/personal/patrick_gorry_2015_mumail_ie/ETNR7PjLF7hNgGB4478RD5AB2gI7Uufj1tvlbGlDzm4Z2w?e=RiUCH3&download=1**
 
 
 ### Running the tool
