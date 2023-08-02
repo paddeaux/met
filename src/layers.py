@@ -116,14 +116,27 @@ class Generator_C(nn.Module):
         # initial takes 1x1 -> 4x4
 
         # trying to add in labels for conditional GAN functionality
-        self.label_emb = nn.Embedding(1, 4)
+        self.label_emb = nn.Embedding(4, 4)
 
-        self.initial = nn.Sequential(
+        self.init_image = nn.Sequential(
             PixelNorm(),
             nn.ConvTranspose2d(z_dim, in_channels, 4, 1, 0),
-            nn.LeakyReLU(0.2),
-            WSConv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.init_label = nn.Sequential(
+            nn.ConvTranspose2d(4, in_channels, 4, 1, 0),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.concat_conv = nn.Sequential(
+            nn.ConvTranspose2d(z_dim*2, in_channels, 4, 1, 0),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.init_concat = nn.Sequential(
+            nn.ConvTranspose2d(z_dim*2, in_channels, 4, 1, 0),
+            WSConv2d(in_channels, in_channels, kernel_size=3, stride=2, padding=1),
             PixelNorm(),
         )
 
@@ -150,10 +163,19 @@ class Generator_C(nn.Module):
         return torch.tanh(alpha * generated + (1 - alpha) * upscaled)
 
     def forward(self, x, alpha, steps, labels): ## steps=0 : 4x4 output / steps=1 : 8x8 output / steps=2 : 16x16 output ...
-        c = self.label_emb(labels)        
-        x = torch.cat([x, c], 1)
-        out = self.initial(x)
-	
+        #c = self.label_emb(labels)
+
+        print("label dimensions: (pre-network)", labels.shape)
+        c = self.init_label(labels)
+        print("label dimensions: (post-network)", c.shape)
+        x = self.init_image(x)
+
+        z = torch.cat([x, c], 1)
+        
+        out = self.init_concat(z)#self.concat_conv(z))
+
+        print("concatenated input shape:", out.shape)
+
         if steps == 0:
             return self.initial_rgb(out)
 
@@ -262,7 +284,7 @@ class Discriminator_C(nn.Module):
         self.prog_blocks, self.rgb_layers = nn.ModuleList([]), nn.ModuleList([])
         self.leaky = nn.LeakyReLU(0.2)
 	
-        self.label_emb = nn.Embedding(1,4)
+        self.label_emb = nn.Embedding(4,4)
 
         # here we work back ways from factors because the discriminator
         # should be mirrored from the generator. So the first prog_block and

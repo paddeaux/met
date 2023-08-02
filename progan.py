@@ -10,6 +10,7 @@ import sys, getopt
 import argparse
 # Torch packages
 import torch
+from torchinfo import summary
 
 import torch.optim as optim
 import torchvision.transforms as transforms
@@ -204,6 +205,8 @@ def load_model():
     print("Loading model...")
     gen = Generator(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
     critic = Discriminator(IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
+    #summary(gen, input_data=[torch.randn(1,256,1,1).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE)])
+    summary(critic, input_data=[torch.randn(1,13,256,256).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE)])
 
     ## initialize optimizer,scalers (for FP16 training)
     opt_gen = optim.Adam(gen.parameters(),lr=LR,betas=(0.0,0.99))

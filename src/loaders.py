@@ -152,7 +152,7 @@ class overfit_sen12(Dataset):
         image = rasterio.open(str(self.image_path)).read()
         image_norm = cv2.normalize(image.astype(np.float32), dst=None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX)
         image = np.transpose(image_norm,(1,2,0))
-        label = 0
+        label = torch.tensor(0).int()
         if self.transform is not None:
             image = self.transform(image)
 

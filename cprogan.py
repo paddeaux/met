@@ -18,6 +18,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.autograd import Variable
+from torchinfo import summary
 
 # ProGAN libraries
 from src.layers import *
@@ -35,7 +36,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 START_TRAIN_IMG_SIZE = 4
 DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/train/")
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
-OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
+# Use this for overfitting on ReaServe
+#OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
 
 #os.makedirs("checkpoints", exist_ok = True)
 CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_overfit_c.pth")
@@ -143,6 +145,10 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
 def train_model():      
     ## build model
     gen = Generator_C(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
+    #summary(gen, input_data=[torch.randn(1,256,1,1).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4).to(DEVICE)])
+    #summary(gen, input_data=[torch.randn(1,256,1,1).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4,1,1).to(DEVICE)])
+    summary(critic, input_data=[torch.randn(1,13,256,256).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4,1,1).to(DEVICE)])
+
     critic = Discriminator_C(IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
 
     ## initialize optimizer,scalers (for FP16 training)

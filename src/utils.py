@@ -117,11 +117,16 @@ def plot_sample(gen,device,z_dim=256,steps=6,n=2):
     fig, axs = plt.subplots(1, n, figsize=(15,4))
     fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
     plt.axis('off')
+    alpha=1
     for i, ax in enumerate(axs.flatten()):
         gen.eval()
         with torch.no_grad():
             noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=1,steps=steps)
+            generated_img = gen(noise,alpha=alpha,steps=steps)
+            
+            print("Input shapes:")
+            print("noise:",noise.shape)
+            
             print("Saving tif...")
             save_tif(generated_img, "tif_example")
             img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
