@@ -125,19 +125,14 @@ class Generator_C(nn.Module):
         )
 
         self.init_label = nn.Sequential(
-            nn.ConvTranspose2d(4, in_channels, 4, 1, 0),
-            nn.LeakyReLU(0.2)
-        )
-
-        self.concat_conv = nn.Sequential(
-            nn.ConvTranspose2d(z_dim*2, in_channels, 4, 1, 0),
+            nn.ConvTranspose2d(4, in_channels, kernel_size=2, stride=2, padding=2),
             nn.LeakyReLU(0.2)
         )
 
         self.init_concat = nn.Sequential(
             nn.ConvTranspose2d(z_dim*2, in_channels, 4, 1, 0),
-            WSConv2d(in_channels, in_channels, kernel_size=3, stride=2, padding=1),
-            PixelNorm(),
+            WSConv2d(in_channels, in_channels, kernel_size=3, stride=2, padding=1)
+            #PixelNorm(),
         )
 
         self.initial_rgb = WSConv2d(
@@ -301,6 +296,21 @@ class Discriminator_C(nn.Module):
 
         ## this 'from-rgb' layer is for 4x4 resolution
         # did this to "mirror" the generator initial_rgb
+
+        self.init_image = nn.Sequential(
+            WSConv2d(img_channels, conv_in, kernel_size=1, stride=1, padding=0),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.init_label = nn.Sequential(
+            WSConv2d(4, img_channels, kernel_size=1, stride=1, padding=0),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.init_concat = nn.Sequential(
+            WSConv2d(img_channels*2, img_channels, kernel_size=1, stride=1, padding=0)
+        )
+
         self.initial_rgb = WSConv2d(
             img_channels, in_channels, kernel_size=1, stride=1, padding=0
         )
@@ -342,8 +352,12 @@ class Discriminator_C(nn.Module):
         # use the final block
 
 	# adding in the label and concating to the x input
-        c = self.label_emb(labels)
+        c = self.init_label(labels)
+        print("c shape:", c.shape)
+        print("x shape:", x.shape)
         x = torch.cat([x, c], 1)
+        x = self.init_concat(x)
+        print("concat shape:", x.shape)
 
         cur_step = len(self.prog_blocks) - steps
 

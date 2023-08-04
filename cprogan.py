@@ -105,12 +105,21 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
         cur_batch_size = real.shape[0]
         noise = torch.randn(cur_batch_size,Z_DIM,1,1).to(DEVICE)
 
-        fake_labels = torch.randint(0, 4, (cur_batch_size,)).to(DEVICE)
+        #get labels that are the right shape and broadcast along 2 more dimensions for deconvolutional step
+        broadcasted_labels = torch.zeros(cur_batch_size, 4, 4*(2**step) , 4*(2**step), device=torch.device(DEVICE))
+        real_labels = labels.unsqueeze(-1).unsqueeze(-1).to(DEVICE)
+
+        print("real_labels shape:", real_labels.shape)
+        print("broadcasted_labels shape:", broadcasted_labels.shape)
+
+        fake_labels = broadcasted_labels #+ real_labels
+
+        #fake_labels = torch.randint(0, 4, (cur_batch_size,)).to(DEVICE)
         ## Train Critic
         ## Wasserstein Loss : Maximize "E[Critic(real)] - E[Critic(fake)]"   ==   Minimize "-(E[Critic(real)] - E[Critic(fake)])"
         with torch.cuda.amp.autocast():
             fake = gen(noise,alpha,step,fake_labels).to(DEVICE)
-            critic_real = critic(real,alpha,step,labels)
+            critic_real = critic(real,alpha,step,real_labels)
             critic_fake = critic(fake.detach(),alpha,step,fake_labels)
             gp = gradient_penalty(critic,real,fake,alpha,step,device=DEVICE)
             loss_critic = -1 * (torch.mean(critic_real) - torch.mean(critic_fake)) + LAMBDA_GP * gp + 0.001 * torch.mean(critic_real**2)
@@ -147,9 +156,9 @@ def train_model():
     gen = Generator_C(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
     #summary(gen, input_data=[torch.randn(1,256,1,1).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4).to(DEVICE)])
     #summary(gen, input_data=[torch.randn(1,256,1,1).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4,1,1).to(DEVICE)])
-    summary(critic, input_data=[torch.randn(1,13,256,256).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4,1,1).to(DEVICE)])
 
     critic = Discriminator_C(IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
+    #summary(critic, input_data=[torch.randn(1,13,256,256).to(DEVICE), torch.tensor(1).int().to(DEVICE), torch.tensor(6).int().to(DEVICE), torch.randn(1,4,256,256).to(DEVICE)])
 
     ## initialize optimizer,scalers (for FP16 training)
     opt_gen = optim.Adam(gen.parameters(),lr=LR,betas=(0.0,0.99))
