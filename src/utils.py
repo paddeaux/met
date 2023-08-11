@@ -129,7 +129,7 @@ def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
             ax.axis('off')
         gen.train()
     plt.show()
-    plt.savefig(f"sen12_epoch_{epoch}_step_{step}_")
+    plt.savefig(f"sen12_epoch_{epoch}_step_{steps}.png")
     # Generate image from GAN
 
 def save_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
