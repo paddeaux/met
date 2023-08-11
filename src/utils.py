@@ -113,7 +113,7 @@ def save_tif(input_img, filename):
             ) as new_file:
                 new_file.write(input_img, [x for x in range(1,14)]) 
 
-def plot_sample(gen,device,z_dim=256,steps=6,n=2):
+def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
     fig, axs = plt.subplots(1, n, figsize=(15,4))
     fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
     plt.axis('off')
@@ -123,18 +123,32 @@ def plot_sample(gen,device,z_dim=256,steps=6,n=2):
         with torch.no_grad():
             noise = torch.randn(1,z_dim,1,1).to(device)
             generated_img = gen(noise,alpha=alpha,steps=steps)
-            
-            print("Input shapes:")
-            print("noise:",noise.shape)
-            
-            print("Saving tif...")
-            save_tif(generated_img, "tif_example")
             img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
             ax.imshow(img[:, :, 1:4])
             ax.set_title(f'Image #{i}')
             ax.axis('off')
         gen.train()
     plt.show()
+    plt.savefig(f"sen12_epoch_{epoch}_step_{step}_")
+    # Generate image from GAN
+
+def save_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
+    fig, axs = plt.subplots(1, n, figsize=(15,4))
+    fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
+    plt.axis('off')
+    alpha=1
+    for i, ax in enumerate(axs.flatten()):
+        gen.eval()
+        with torch.no_grad():
+            noise = torch.randn(1,z_dim,1,1).to(device)
+            generated_img = gen(noise,alpha=alpha,steps=steps)
+            img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
+            ax.imshow(img[:, :, 1:4])
+            ax.set_title(f'Image #{i}')
+            ax.axis('off')
+        plt.savefig(f"sen12_epoch_{epoch}_step_{steps}_{i}.png")
+        gen.train()
+    
     # Generate image from GAN
 
 def plot_bands_all(gen,device,z_dim=256,steps=6):

@@ -62,14 +62,6 @@ NUM_WORKERS = 2
 GENERATE_EXAMPLES_AT = [1,4,8,12,16,20,24,28,32]#[1,50,100,150,200,250,300,350,400,450,500]##[1000,2000,3000,4000,5000,6000,7000,8000]
 
 def get_loader(img_size):
-    transform = transforms.Compose(
-    [
-        transforms.Resize((img_size,img_size)),
-        transforms.ToTensor(),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.Normalize([0.5 for _ in range(IMG_CHANNELS)],[0.5 for _ in range(IMG_CHANNELS)])
-    ])
-
     transform_sen = transforms.Compose(
     [
         transforms.ToTensor(),
@@ -191,8 +183,8 @@ def train_model():
             global_epoch += 1
             
             # Generating TIF files (not working)
-            #if global_epoch in GENERATE_EXAMPLES_AT:
-                #generate_examples_tif(gen,global_epoch,step,Z_DIM, DEVICE, n=3)
+            if global_epoch in GENERATE_EXAMPLES_AT:
+                save_sample(gen, global_epoch, DEVICE, Z_DIM, step, 5)
             
             # has a habit of running out of memory going into step 5 and step 6 so increasing the frequency of checkpoints here
             if SAVE_MODEL:
