@@ -147,7 +147,7 @@ def save_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
             ax.set_title(f'Image #{i}')
             ax.axis('off')
         gen.train()
-    plt.savefig(f"sen12_epoch_{epoch}_step_{steps}_{i}.png")
+    plt.savefig(f"sen12_epoch_{epoch}_step_{steps}.png")
 
     
     # Generate image from GAN
