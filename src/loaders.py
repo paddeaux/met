@@ -145,7 +145,7 @@ class overfit_sen12(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return 5000
+        return 1000
 
     def __getitem__(self, x):
         # open image here as PIL / numpy

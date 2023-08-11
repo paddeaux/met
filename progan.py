@@ -2,6 +2,7 @@
 
 # Base packages
 import numpy as np
+import pandas as pd
 from math import log2
 import os
 from tqdm import tqdm
@@ -32,12 +33,12 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 START_TRAIN_IMG_SIZE = 4
-DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/ROIs1158_spring/train/")
+DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/SEN12MS/ROIs1158_spring/")
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/generator_sen12_full_overfit.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_overfit.pth")
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_test.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_test.pth")
 SAVE_MODEL = False
 LOAD_MODEL = False
 
@@ -91,9 +92,10 @@ def get_loader(img_size):
     
     return loader,dataset
 
-def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard_step,writer,scaler_gen,scaler_critic):
+def train_fn(gen,critic,loader,dataset,step,alpha,epoch,opt_gen,opt_critic,tensorboard_step,writer,scaler_gen,scaler_critic):
     loop = tqdm(loader,leave=True)
-    
+    generator_losses = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
+    critic_losses = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
     i = 0
     for batch_idx,(real,_) in enumerate(loop):
         i += 1
@@ -128,16 +130,21 @@ def train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard
         scaler_gen.step(opt_gen)
         scaler_gen.update()
     
+        loop.set_postfix({'Critic loss': loss_critic.item(),
+                  'Gen loss': loss_gen.item()})
+
+        generator_losses = pd.concat([generator_losses, pd.DataFrame({"size":[(4*2**step)],"epoch":[epoch],"batch_number":[batch_idx], "loss":[loss_gen.item()]})], ignore_index=True)
+        critic_losses = pd.concat([critic_losses, pd.DataFrame({"size":[(4*2**step)],"epoch":[epoch],"batch_number":[batch_idx], "loss":[loss_critic.item()]})], ignore_index=True)
         alpha += (cur_batch_size/len(dataset)) * (1/PROGRESSIVE_EPOCHS[step]) * 2
         alpha = min(alpha,1)
-        
+
         #if batch_idx % 500 == 0:
         #    with torch.no_grad():
         #        fixed_fakes = gen(FIXED_NOISE,alpha,step) * 0.5 + 0.5
         #        save_on_tensorboard(writer,loss_critic.item(),loss_gen.item(),real.detach(),fixed_fakes.detach(),tensorboard_step)
         tensorboard_step += 1
     
-    return tensorboard_step,alpha
+    return tensorboard_step,alpha,generator_losses,critic_losses
 
 def train_model():      
     ## build model
@@ -166,21 +173,24 @@ def train_model():
     gen.train()
     critic.train()
     
+    gen_history_size = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
+    critic_history_size = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
     for num_epochs in PROGRESSIVE_EPOCHS[step:]:
         alpha = 1e-4
         loader,dataset = get_loader(4*2**step)
         print(f"Image size:{4*2**step} | Current step:{step}")
-        
+        gen_history_epoch = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
+        crit_history_epoch = pd.DataFrame({"size":[], "epoch":[], "batch_number":[], "loss":[]})
         for epoch in range(num_epochs):
             print(f"Epoch [{epoch+1}/{num_epochs}] Global Epoch:{global_epoch}")
-            tensorboard_step,alpha = train_fn(gen,critic,loader,dataset,step,alpha,opt_gen,opt_critic,tensorboard_step,writer,scaler_gen,scaler_critic)
+            tensorboard_step,alpha,gen_losses, crit_losses = train_fn(gen,critic,loader,dataset,step,alpha,epoch,opt_gen,opt_critic,tensorboard_step,writer,scaler_gen,scaler_critic)
             global_epoch += 1
             if global_epoch in GENERATE_EXAMPLES_AT:
                 generate_examples_tif(gen,global_epoch,step,Z_DIM, DEVICE, n=3)
             
             # has a habit of running out of memory going into step 5 and step 6 so increasing the frequency of checkpoints here
             if SAVE_MODEL:
-                if step < 5 and (epoch+1)%4==0:
+                if step < 5:# and (epoch+1)%4==0:
                     print("Saving generator checkpoint...")
                     save_checkpoint(gen,opt_gen, step, global_epoch, filename=CHECKPOINT_GEN)
                     print("Saving critic checkpoint...")
@@ -190,7 +200,18 @@ def train_model():
                     save_checkpoint(gen,opt_gen, step, global_epoch, filename=CHECKPOINT_GEN)
                     print("Saving critic checkpoint...")
                     save_checkpoint(critic,opt_critic, step, global_epoch, filename=CHECKPOINT_CRITIC)
+
+            # Track loss history
+            gen_history_epoch = pd.concat([gen_history_epoch, gen_losses], ignore_index=True)
+            crit_history_epoch = pd.concat([crit_history_epoch, crit_losses], ignore_index=True)
         step += 1 ## Progressive Growing
+        gen_history_size = pd.concat([gen_history_size, gen_history_epoch], ignore_index=True)
+        critic_history_size = pd.concat([critic_history_size, crit_history_epoch], ignore_index=True)
+        print("Saving loss data...")
+        gen_history_size.to_csv('gen_loss.csv', index=False)
+        critic_history_size.to_csv('critic_loss.csv', index=False)
+        print("Saved to 'gen_loss.csv' and 'critic_loss.csv' ")
+
     if SAVE_MODEL:
         print("Saving model...")
         save_checkpoint(gen,opt_gen, step, global_epoch, filename=CHECKPOINT_GEN)

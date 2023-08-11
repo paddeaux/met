@@ -304,6 +304,7 @@ class Discriminator_C(nn.Module):
 
         self.init_label = nn.Sequential(
             WSConv2d(4, img_channels, kernel_size=1, stride=1, padding=0),
+            nn.ConvTranspose2d(img_channels, img_channels, kernel_size=2, stride=2, padding=2),
             nn.LeakyReLU(0.2)
         )
 
@@ -351,13 +352,20 @@ class Discriminator_C(nn.Module):
         # at the second to last because input_size will be 8x8. If steps==0 we just
         # use the final block
 
-	# adding in the label and concating to the x input
-        c = self.init_label(labels)
+	    # adding in the label and concating to the x input
+        emb = self.label_emb(labels)
+        print("emb shape:", emb.shape)
+        print("x shape:", x.shape)
+        c = self.init_label(torch.permute(emb,(0,3,1,2)))
+
         print("c shape:", c.shape)
         print("x shape:", x.shape)
+
         x = torch.cat([x, c], 1)
+        print("concat shape (pre-concat layer):", x.shape)
+
         x = self.init_concat(x)
-        print("concat shape:", x.shape)
+        print("concat shape (post-concat layer):", x.shape)
 
         cur_step = len(self.prog_blocks) - steps
 
