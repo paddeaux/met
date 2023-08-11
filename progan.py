@@ -33,7 +33,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 START_TRAIN_IMG_SIZE = 4
-DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/SEN12MS/ROIs1158_spring/")
+DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/SEN12MS/")#ROIs1158_spring/")
+DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/sen12_foldertest/")
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 
 #os.makedirs("checkpoints", exist_ok = True)
@@ -77,10 +78,10 @@ def get_loader(img_size):
     batch_size = BATCH_SIZES[int(log2(img_size/4))]
     # SEN12MS Dataset
     #dataset = SEN12MS_RGB(targ_dir=DATASET, transform=transform_sen)
-    #dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
+    dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
     
     # Overfit of a single SEN12MS Image
-    dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
+    #dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
 
     # Loading from original CelebA dataset
     #dataset = datasets.ImageFolder(root=DATASET,transform=transform)
@@ -185,8 +186,10 @@ def train_model():
             print(f"Epoch [{epoch+1}/{num_epochs}] Global Epoch:{global_epoch}")
             tensorboard_step,alpha,gen_losses, crit_losses = train_fn(gen,critic,loader,dataset,step,alpha,epoch,opt_gen,opt_critic,tensorboard_step,writer,scaler_gen,scaler_critic)
             global_epoch += 1
-            if global_epoch in GENERATE_EXAMPLES_AT:
-                generate_examples_tif(gen,global_epoch,step,Z_DIM, DEVICE, n=3)
+            
+            # Generating TIF files (not working)
+            #if global_epoch in GENERATE_EXAMPLES_AT:
+                #generate_examples_tif(gen,global_epoch,step,Z_DIM, DEVICE, n=3)
             
             # has a habit of running out of memory going into step 5 and step 6 so increasing the frequency of checkpoints here
             if SAVE_MODEL:

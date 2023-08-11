@@ -87,12 +87,12 @@ class SEN12MS_FULL(Dataset):
         
         # 3. Create class attributes
         # Get all image paths
-        self.paths = list(pathlib.Path(targ_dir).glob("*/*.tif")) # note: you'd have to update this if you've got .png's or .jpeg's
+        self.paths = list(pathlib.Path(targ_dir).glob("*/*/*.tif")) # note: you'd have to update this if you've got .png's or .jpeg's
         # Setup transforms
         self.transform = transform
         self.label = "Spring"
         # Create classes and class_to_idx attributes
-        self.classes, self.class_to_idx = find_classes(targ_dir)
+        #self.classes, self.class_to_idx = find_classes(targ_dir)
 
     # 4. Make function to load images
     def load_image(self, index: int):# -> Image.Image:
@@ -112,9 +112,10 @@ class SEN12MS_FULL(Dataset):
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int]:
         "Returns one sample of data, data and label (X, y)."
         img = self.load_image(index)
-        class_name  = self.paths[index].parent.name # expects path in data_folder/class_name/image.jpeg
-        class_idx = self.class_to_idx[class_name]
-
+        #class_name  = self.paths[index].parent.name # expects path in data_folder/class_name/image.jpeg
+        #class_idx = self.class_to_idx[class_name]
+        # removing the need for the class_idx for the full dataset
+        class_idx = 0
         # Transform if necessary
         if self.transform:
             return self.transform(img), class_idx # return data, label (X, y)
