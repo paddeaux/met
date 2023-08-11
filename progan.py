@@ -39,6 +39,8 @@ DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/sen12_foldertest/")
 DATASET = "/data/pgorry/sen12ms/s2"
 
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
+# overfit source for reaserve
+OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
 
 #os.makedirs("checkpoints", exist_ok = True)
 CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_test.pth")
@@ -73,10 +75,10 @@ def get_loader(img_size):
     batch_size = BATCH_SIZES[int(log2(img_size/4))]
     # SEN12MS Dataset
     #dataset = SEN12MS_RGB(targ_dir=DATASET, transform=transform_sen)
-    dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
+    #dataset = SEN12MS_FULL(targ_dir=DATASET, transform=transform_sen)
     
     # Overfit of a single SEN12MS Image
-    #dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
+    dataset = overfit_sen12(image_path=OVERFIT_DATASET, transform=transform_sen)
 
     # Loading from original CelebA dataset
     #dataset = datasets.ImageFolder(root=DATASET,transform=transform)
