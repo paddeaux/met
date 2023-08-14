@@ -43,8 +43,8 @@ OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_full_trained_650epochs.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_trained_650epochs.pth")
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_full_trained_475epochs.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_trained_475epochs.pth")
 SAVE_MODEL = True
 LOAD_MODEL = False
 
