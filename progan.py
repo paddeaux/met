@@ -264,7 +264,7 @@ def main():
     # Plotting sample
     if args.plot in ('rgb', 'RGB'):
         print("Plotting example RGB image...")
-        plot_sample(gen,DEVICE)
+        plot_sample(gen,79,DEVICE)
     elif args.plot in ('full', 'FULL'):
         plot_bands_all(gen,DEVICE)
     else:
