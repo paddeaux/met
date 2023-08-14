@@ -113,7 +113,7 @@ def save_tif(input_img, filename):
             ) as new_file:
                 new_file.write(input_img, [x for x in range(1,14)]) 
 
-def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=1):
+def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=2):
     fig, axs = plt.subplots(1, n, figsize=(15,4))
     fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
     plt.axis('off')
