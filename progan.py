@@ -43,8 +43,8 @@ OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 OVERFIT_DATASET = "/data/pgorry/inputs/sen12.tif"
 
 #os.makedirs("checkpoints", exist_ok = True)
-CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_full_trained.pth")
-CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_trained.pth")
+CHECKPOINT_GEN = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/gen_sen12_full_trained_650epochs.pth")
+CHECKPOINT_CRITIC = os.path.join(os.path.dirname(os.getcwd()),"checkpoints/critic_sen12_full_trained_650epochs.pth")
 SAVE_MODEL = True
 LOAD_MODEL = False
 
@@ -57,11 +57,11 @@ IN_CHANNELS = 256 ## 512 for paper
 LAMBDA_GP = 10
 NUM_STEPS = int(log2(IMAGE_SIZE/4)) + 1
 
-PROGRESSIVE_EPOCHS = [10,10,10,10,10,10,10] #[1] * len(BATCH_SIZES) 
+PROGRESSIVE_EPOCHS = [50,50,50,50,100,150,200] #[1] * len(BATCH_SIZES) 
 FIXED_NOISE = torch.randn(8,Z_DIM,1,1).to(DEVICE)
 # NUM_WORKERS = 4
 NUM_WORKERS = 2
-GENERATE_EXAMPLES_AT = [1,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100]
+GENERATE_EXAMPLES_AT = [25,50,100,150,200,250,300,350,400,450,500,550,600,650]
 
 def get_loader(img_size):
     transform_sen = transforms.Compose(
