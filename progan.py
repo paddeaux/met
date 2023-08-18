@@ -204,13 +204,14 @@ def train_model():
             # Track loss history
             gen_history_epoch = pd.concat([gen_history_epoch, gen_losses], ignore_index=True)
             crit_history_epoch = pd.concat([crit_history_epoch, crit_losses], ignore_index=True)
+            gen_history_size = pd.concat([gen_history_size, gen_history_epoch], ignore_index=True)
+            critic_history_size = pd.concat([critic_history_size, crit_history_epoch], ignore_index=True)
+            print("Saving loss data...")
+            gen_history_size.to_csv('gen_loss.csv', index=False)
+            critic_history_size.to_csv('critic_loss.csv', index=False)
+            print("Saved to 'gen_loss.csv' and 'critic_loss.csv' ")
         step += 1 ## Progressive Growing
-        gen_history_size = pd.concat([gen_history_size, gen_history_epoch], ignore_index=True)
-        critic_history_size = pd.concat([critic_history_size, crit_history_epoch], ignore_index=True)
-        print("Saving loss data...")
-        gen_history_size.to_csv('gen_loss.csv', index=False)
-        critic_history_size.to_csv('critic_loss.csv', index=False)
-        print("Saved to 'gen_loss.csv' and 'critic_loss.csv' ")
+        
 
     if SAVE_MODEL:
         print("Saving model...")
