@@ -34,9 +34,9 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 START_TRAIN_IMG_SIZE = 4
 DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/SEN12MS/")#ROIs1158_spring/")
-DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/sen12_foldertest/")
+#DATASET = os.path.join(os.path.dirname(os.getcwd()), "input/sen12_foldertest/")
 # dataset source on ReaServe
-DATASET = "/data/pgorry/sen12ms/s2"
+#DATASET = "/data/pgorry/sen12ms/s2"
 
 OVERFIT_DATASET = os.path.join(os.path.dirname(os.getcwd()), "Input/sen12.tif")
 # overfit source for reaserve
