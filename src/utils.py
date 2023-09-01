@@ -6,18 +6,7 @@ import rasterio
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-
-def save_on_tensorboard(writer,loss_critic,loss_gen,real,fake,tensorboard_step):
-    writer.add_scalar("Loss Critic",loss_critic,global_step=tensorboard_step)
-    writer.add_scalar("Loss Generator", loss_gen, global_step=tensorboard_step)
-    
-    with torch.no_grad():
-        img_grid_real = torchvision.utils.make_grid(real[:8],normalize=True)
-        img_grid_fake = torchvision.utils.make_grid(fake[:8],normalize=True)
-        
-        writer.add_image("Real",img_grid_real,global_step = tensorboard_step)
-        writer.add_image("Fake",img_grid_fake,global_step = tensorboard_step)
-        
+       
 def gradient_penalty(critic,real,fake,alpha,train_step,device="cpu"):
     BATCH_SIZE,C,H,W = real.shape
     beta = torch.rand((BATCH_SIZE,1,1,1)).repeat(1,C,H,W).to(device)
@@ -76,28 +65,6 @@ def generate_examples(gen,current_epoch,steps,z_dim,device,n=16):
     
     gen.train()
 
-def generate_examples_tif(gen,current_epoch,steps,z_dim,device,n=16):
-    gen.eval()
-    alpha = 1.0
-    
-    for i in range(n):
-        with torch.no_grad():
-            noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=alpha,steps=steps)
-            img_np = generated_img[0].detach().cpu().numpy()
-            with rasterio.open(
-                os.path.join(f"generated_images/step{steps}_epoch{current_epoch}_{i}.tif"), 
-                mode="w",
-                driver="GTiff",
-                count=13,
-                height=img_np.shape[1], 
-                width=img_np.shape[2],
-                crs='EPSG:32737',
-                dtype=rasterio.uint16
-            ) as new_file:
-                new_file.write(img_np, [x for x in range(1,14)])    
-    gen.train()
-
 def save_tif(input_img, filename):
     input_img = input_img.cpu().detach()[0]
     with rasterio.open(
@@ -113,7 +80,7 @@ def save_tif(input_img, filename):
             ) as new_file:
                 new_file.write(input_img, [x for x in range(1,14)]) 
 
-def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=10):
+def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=10,training=True):
     if n % 5 != 0:
         n += n%5
     rows = int(n/5)
@@ -133,30 +100,10 @@ def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=10):
             ax.axis('off')
         gen.train()
     plt.show()
-    plt.savefig(f"sen12_epoch_{epoch}_step_{steps}.png")
-    # Generate image from GAN
-
-def save_sample(gen,epoch,device,z_dim=256,steps=6,n=6):
-    fig, axs = plt.subplots(1, n, figsize=(15,4))
-    fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
-    plt.axis('off')
-    alpha=1
-    for i, ax in enumerate(axs.flatten()):
-        gen.eval()
-        with torch.no_grad():
-            noise = torch.randn(1,z_dim,1,1).to(device)
-            generated_img = gen(noise,alpha=alpha,steps=steps)
-            img = np.transpose((generated_img*0.5+0.5)[0].detach().cpu().numpy(), (1,2,0))
-            ax.imshow(img[:, :, 1:4])
-            ax.set_title(f'Image #{i}')
-            ax.axis('off')
-        gen.train()
-    plt.savefig(f"generated_images/sen12_epoch_{epoch}_step_{steps}.png")
-
+    fig_title = f"sen12_epoch_{epoch}_step_{steps}.png" if training else f"sen12_sample_rgb.png"
+    #plt.savefig(f"generated_images/{fig_title}")
     
-    # Generate image from GAN
-
-def plot_bands_all(gen,device,z_dim=256,steps=6):
+def plot_bands_all(gen,device,z_dim=256,steps=6, training=True):
     band_names = [
         "B1: Coastal aerosol", "B2: Blue", "B3: Green", "B4: Red",
         "B5: Vegetation red edge", "B6: Vegetation red edge", "B7: Vegetation red edge",

@@ -127,17 +127,13 @@ def train_model(DEVICE, START_TRAIN_IMG_SIZE, IMG_CHANNELS, Z_DIM, IN_CHANNELS, 
             alpha,gen_losses, crit_losses = train_fn(gen,critic,loader,dataset,step,alpha,epoch,opt_gen,opt_critic,scaler_gen,scaler_critic,DEVICE,Z_DIM,LAMBDA_GP,PROGRESSIVE_EPOCHS)
             global_epoch += 1
             
-            # Generating TIF files (not working)
-            if global_epoch in GENERATE_EXAMPLES_AT:
-                save_sample(gen, global_epoch, DEVICE, Z_DIM, step, 5)
-            
             # has a habit of running out of memory going into step 5 and step 6 so increasing the frequency of checkpoints here
             if SAVE_MODEL:
                 if step < 5 and (epoch+1)%4==0:
                     print("Saving generator checkpoint...")
-                    save_checkpoint(gen,opt_gen, step, global_epoch, filename=CHECKPOINT_GEN)
+                    save_checkpoint(gen,opt_gen, step, global_epoch, filename=f"{CHECKPOINT_GEN}_epoch{epoch}.pth")
                     print("Saving critic checkpoint...")
-                    save_checkpoint(critic,opt_critic, step, global_epoch, filename=CHECKPOINT_CRITIC)
+                    save_checkpoint(critic,opt_critic, step, global_epoch, filename=f"{CHECKPOINT_CRITIC}_epoch{epoch}.pth")
 
                     print("Saving loss data...")
                     gen_losses.to_csv(f'gen_loss_size{4*2**step}_step{step}_epoch{epoch}.csv', index=False)
@@ -161,7 +157,7 @@ def train_model(DEVICE, START_TRAIN_IMG_SIZE, IMG_CHANNELS, Z_DIM, IN_CHANNELS, 
     print("Training finished")
     return gen, critic
 
-def load_model():      
+def load_model(Z_DIM, IN_CHANNELS, IMG_CHANNELS, DEVICE, LR, CHECKPOINT_GEN, CHECKPOINT_CRITIC):      
     ## build model
     print("Loading model...")
     gen = Generator(Z_DIM,IN_CHANNELS,IMG_CHANNELS).to(DEVICE)
@@ -191,8 +187,8 @@ def main():
 
     argParser = argparse.ArgumentParser()
     argParser.add_argument('-i', '--input_folder', type=str, default='sen12ms', help='name of input folder located in the "input" folder')
-    argParser.add_argument('-g', '--checkpoint_gen', type=str, default='gen_sen12_test.pth', help='name of the checkpoint file for Generator')
-    argParser.add_argument('-c', '--checkpoint_critic', type=str, default='critic_sen12_test.pth', help='name of the checkpoint file for Critic')
+    argParser.add_argument('-g', '--checkpoint_gen', type=str, default='progan_gen_sen12_268epochs.pth', help='name of the checkpoint file for Generator')
+    argParser.add_argument('-c', '--checkpoint_critic', type=str, default='progan_critic_sen12_268epochs.pth', help='name of the checkpoint file for Critic')
     argParser.add_argument('-lc', '--load_checkpoint', type=bool, default=False, help='Boolean for loading checkpoint in training')
     argParser.add_argument('-sc', '--save_checkpoint', type=bool, default=False, help='Boolean for saving checkpoint in training')
     argParser.add_argument("-m", "--mode", type=str, default='load', help="train or load a model: 'train' or 'load'")
@@ -228,14 +224,14 @@ def main():
                                   LAMBDA_GP, DATASET, CHECKPOINT_GEN, CHECKPOINT_CRITIC,
                                   SAVE_MODEL, LOAD_MODEL, LR, BATCH_SIZES, PROGRESSIVE_EPOCHS, NUM_WORKERS, GENERATE_EXAMPLES_AT)
     elif args.mode in ('load', 'LOAD'):
-        gen, critic = load_model()
+        gen, critic = load_model(Z_DIM, IN_CHANNELS, IMG_CHANNELS, DEVICE, LR, CHECKPOINT_GEN, CHECKPOINT_CRITIC)
     else:
         print("Invalid input: --mode <train OR load>")
 
     # Plotting sample
     if args.plot in ('rgb', 'RGB'):
         print("Plotting example RGB image...")
-        plot_sample(gen,999,DEVICE)
+        plot_sample(gen,999,DEVICE,training=False)
     elif args.plot in ('full', 'FULL'):
         plot_bands_all(gen,DEVICE)
     else:
