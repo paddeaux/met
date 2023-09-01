@@ -118,7 +118,7 @@ def plot_sample(gen,epoch,device,z_dim=256,steps=6,n=10):
         n += n%5
     rows = int(n/5)
     cols = int(n / rows)
-    fig, axs = plt.subplots(rows, cols, figsize=(30,15))
+    fig, axs = plt.subplots(rows, cols, figsize=(12,5))
     fig.suptitle("Synthetic SEN12MS RGB Images", fontsize=16)
     plt.axis('off')
     alpha=1
